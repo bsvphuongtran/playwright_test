@@ -1,0 +1,252 @@
+{
+  "columns": [
+    "＃",
+    "小項目",
+    "前提条件",
+    "テスト手順",
+    "期待する結果",
+    "Unnamed: 5"
+  ],
+  "cases": [
+    {
+      "＃": "1",
+      "小項目": "Title",
+      "前提条件": "Mở URL",
+      "テスト手順": "Check title",
+      "期待する結果": "Hiển thị text \"Playwright test 08.05.2026\"",
+      "Unnamed: 5": "https://bsv-nhungnguyen.github.io/"
+    },
+    {
+      "＃": "2",
+      "小項目": "Content",
+      "前提条件": "Mở URL",
+      "テスト手順": "Check content",
+      "期待する結果": "Hiển thị text \"A playground for testing modern web automation strategies with Playwright. Explore complex DOM interactions, frames, and synchronization challenges.\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "3",
+      "小項目": "Simple Frame Form",
+      "前提条件": "Mở URL",
+      "テスト手順": "1. Nhập text \"Test1\" vào textbox có placeholder \"Enter your name\"\n2. Nhấn vào \"Submit\" button ",
+      "期待する結果": "Hiển thị text: ✨ Success: Hello, {Nội dung đã nhập}! ngya vị trí Elements:  id=\"frame-output\"\nVí dụ: ✨ Success: Hello, Test1!",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "4",
+      "小項目": "Load Nested Frames (A → B → C)",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Load Nested Frames (A → B → C)\" button ",
+      "期待する結果": "Hiển thị: Iframe Alpha",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "5",
+      "小項目": "Iframe Alpha_Click button",
+      "前提条件": "Mở URL\nĐang hiển thị Iframe Alpha",
+      "テスト手順": "Nhấn vào \"Click button\" button",
+      "期待する結果": "Hiển thị text \"✨ Alpha Clicked!\" ngay vị trí Elements: id=\"res-A\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "6",
+      "小項目": "Iframe Alpha_Open Iframe B",
+      "前提条件": "Mở URL\nĐang hiển thị Iframe Alpha",
+      "テスト手順": "Nhấn vào \"Open Iframe B\" button",
+      "期待する結果": "Hiển thị: Iframe Beta",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "7",
+      "小項目": "Iframe Beta_Click button",
+      "前提条件": "Mở URL\nĐang hiển thị Iframe Beta",
+      "テスト手順": "Nhấn vào \"Click button\" button",
+      "期待する結果": "Hiển thị text \"✨ Beta Clicked!\" ngay vị trí Elements: id=\"res-B\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "8",
+      "小項目": "Iframe Beta_Open Iframe C",
+      "前提条件": "Mở URL\nĐang hiển thị Iframe Beta",
+      "テスト手順": "Nhấn vào \"Open Iframe C\" button",
+      "期待する結果": "Hiển thị: Iframe Gamma",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "9",
+      "小項目": "Iframe Gamma_Click button",
+      "前提条件": "Mở URL\nĐang hiển thị Iframe Gamma",
+      "テスト手順": "Nhấn vào \"Click button\" button",
+      "期待する結果": "Hiển thị text \"✨ Gamma Clicked!\" ngay vị trí Elements: id=\"res-C\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "10",
+      "小項目": "Open New Tab",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Open New Tab (playwright.dev)\" button",
+      "期待する結果": "Mở URL \"https://playwright.dev/\" trên Tab mới",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "11",
+      "小項目": "Open Popup Window",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Open Popup Window\" button",
+      "期待する結果": "Mở popup window \" Popup Activated\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "12",
+      "小項目": "Open In-page Modal",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Open In-page Modal\" button",
+      "期待する結果": "Mở popup \"Secure Confirmation\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "13",
+      "小項目": "Open In-page Modal_Cancel",
+      "前提条件": "Mở URL\nĐang hiển thị popup \"Secure Confirmation\"",
+      "テスト手順": "Nhấn vào \"Cancel\" button",
+      "期待する結果": "Đóng popup",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "14",
+      "小項目": "Open In-page Modal_Cancel",
+      "前提条件": "Mở URL\nĐang hiển thị popup \"Secure Confirmation\"",
+      "テスト手順": "Nhập text \"Test2\" vào textbox có placeholder \"Enter code (e.g. 1234)\"\nNhấn vào \"Confirm\" button",
+      "期待する結果": "1. Đóng popup\n2. Hiển thị text \"✓ Verified:  {Nội dung đã nhập}\" ngay vị trí Elements: id=\"modal-result\"\nVí dụ: ✓ Verified: Test2",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "15",
+      "小項目": "Trigger Alert",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Trigger Alert\" button",
+      "期待する結果": "Hiển thị Trigger Alert với text \"This is a browser alert!\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "16",
+      "小項目": "Trigger Alert_outside",
+      "前提条件": "Mở URL\nĐang hiển thị Trigger Alert",
+      "テスト手順": "Nhấn vào vùng ngoài Trigger Alert",
+      "期待する結果": "Không đóng Trigger Alert",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "17",
+      "小項目": "Trigger Alert_OK",
+      "前提条件": "Mở URL\nĐang hiển thị Trigger Alert",
+      "テスト手順": "Nhấn vào \"OK\" button",
+      "期待する結果": "Đóng Trigger Alert",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "18",
+      "小項目": "Trigger Confirm",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Trigger Confirm\" button",
+      "期待する結果": "Hiển thị Trigger Confirm với text \"Continue?\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "19",
+      "小項目": "Trigger Confirm_outside",
+      "前提条件": "Mở URL\nĐang hiển thị Trigger Confirm",
+      "テスト手順": "Nhấn vào vùng ngoài Trigger Confirm",
+      "期待する結果": "Không đóng Trigger Confirm",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "20",
+      "小項目": "Trigger Confirm_Cancel",
+      "前提条件": "Mở URL\nĐang hiển thị Trigger Confirm",
+      "テスト手順": "Nhấn vào \"Cancel\" button",
+      "期待する結果": "1. Đóng Trigger Confirm\n2. Hiển thị text \"✗ Cancelled\" ngay vị trí Elements: id=\"confirm-result\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "21",
+      "小項目": "Trigger Confirm_OK",
+      "前提条件": "Mở URL\nĐang hiển thị Trigger Confirm",
+      "テスト手順": "Nhấn vào \"OK\" button",
+      "期待する結果": "1. Đóng Trigger Confirm\n2. Hiển thị text \"✓ Confirmed\" ngay vị trí Elements: id=\"confirm-result\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "22",
+      "小項目": "Trigger Prompt",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Trigger Prompt\" button",
+      "期待する結果": "Hiển thị Trigger Prompt",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "23",
+      "小項目": "Trigger Prompt_Cancel",
+      "前提条件": "Mở URL\nĐang hiển thị Trigger Prompt",
+      "テスト手順": "Nhấn vào \"Cancel\" button",
+      "期待する結果": "1. Đóng Trigger Prompt\n2. Hiển thị text \"Dismissed\"  ngay vị trí Elements: id=\"prompt-result\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "24",
+      "小項目": "Trigger Prompt_OK",
+      "前提条件": "Mở URL\nĐang hiển thị Trigger Prompt",
+      "テスト手順": "1, Nhập text \"Tester1\"\n2. Nhấn vào \"OK\" button",
+      "期待する結果": "1. Đóng Trigger Prompt\n2. Hiển thị text \"👤 Name:  {Nội dung đã nhập}\"  ngay vị trí Elements: id=\"prompt-result\"\nVí dụ:  👤 Name: Tester1",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "25",
+      "小項目": "Simulate Failure State",
+      "前提条件": "Mở URL",
+      "テスト手順": "Nhấn vào \"Simulate Failure State\" button",
+      "期待する結果": " Hiển thị text \"💥 CRITICAL FAILURE EMULATED\"  ngay vị trí Elements: id=\"failure-msg\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "26",
+      "小項目": "Reset State",
+      "前提条件": "Mở URL",
+      "テスト手順": "1. Nhấn vào \"Simulate Failure State\" button\n2. Nhấn vào \"Reset State\" button",
+      "期待する結果": " Hiển thị text \"System Normal\"  ngay vị trí Elements: id=\"failure-msg\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "27",
+      "小項目": "Submit Form_invalid1",
+      "前提条件": "Mở URL",
+      "テスト手順": "1. Không nhập text vào textbox trace-name\n2. Không nhập text vào textbox trace-email\n3. Nhấn vào \"Submit Form\" button",
+      "期待する結果": "Hiển thị text \"⚠️ Both fields are required\"  ngay vị trí Elements: id=\"trace-result\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "28",
+      "小項目": "Submit Form_invalid2",
+      "前提条件": "Mở URL",
+      "テスト手順": "1. Không nhập text vào textbox trace-name\n2. Nhập text vào textbox trace-email: test@gmail.com\n3. Nhấn vào \"Submit Form\" button",
+      "期待する結果": "Hiển thị text \"⚠️ Both fields are required\"  ngay vị trí Elements: id=\"trace-result\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "29",
+      "小項目": "Submit Form_invalid3",
+      "前提条件": "Mở URL",
+      "テスト手順": "1. Nhập text vào textbox trace-name: ABC\n2. Không nhập text vào textbox trace-email\n3. Nhấn vào \"Submit Form\" button",
+      "期待する結果": "Hiển thị text \"⚠️ Both fields are required\"  ngay vị trí Elements: id=\"trace-result\"",
+      "Unnamed: 5": null
+    },
+    {
+      "＃": "30",
+      "小項目": "Submit Form_valid",
+      "前提条件": "Mở URL",
+      "テスト手順": "1. Nhập text vào textbox trace-name: ABC\n2. Nhập text vào textbox trace-email: test@gmail.com\n3. Nhấn vào \"Submit Form\" button",
+      "期待する結果": "Hiển thị text \"✓ Submitted: {Nội dung trace-name đã nhập}\"  ngay vị trí Elements: id=\"prompt-result\"\nVí dụ:  ✓ Submitted: ABC",
+      "Unnamed: 5": null
+    }
+  ]
+}
