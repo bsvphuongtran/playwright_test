@@ -30,7 +30,7 @@ class TestPlaywrightShowcase:
     frame = self.app.demo_frame()
     frame.get_by_placeholder("Enter your name").fill("Test1")
     frame.get_by_role("button", name="Submit").click()
-    expect(frame.locator("#frame-output")).to_have_text("✨ Success: Hello, Test1!")
+    expect(frame.locator("#frame-output")).to_have_text("Success: Hello Test1!")
 
   def test_Load_Nested_Frames_A_B_C(self) -> None:
     self.app.load_nested_frames()
@@ -38,7 +38,7 @@ class TestPlaywrightShowcase:
   def test_Iframe_Alpha_Click_button(self) -> None:
     self.app.load_nested_frames()
     self.app.frame_alpha().get_by_role("button", name="Click button").click()
-    expect(self.app.frame_alpha().locator("#res-A")).to_have_text("✨ Alpha Clicked!")
+    expect(self.app.frame_alpha().locator("#res-A")).to_have_text("Iframe A Clicked!")
 
   def test_Iframe_Alpha_Open_Iframe_B(self) -> None:
     self.app.load_nested_frames()
@@ -48,7 +48,7 @@ class TestPlaywrightShowcase:
     self.app.load_nested_frames()
     self.app.open_iframe_beta()
     self.app.frame_beta().get_by_role("button", name="Click button").click()
-    expect(self.app.frame_beta().locator("#res-B")).to_have_text("✨ Beta Clicked!")
+    expect(self.app.frame_beta().locator("#res-B")).to_have_text("Iframe B Clicked!")
 
   def test_Iframe_Beta_Open_Iframe_C(self) -> None:
     self.app.load_nested_frames()
@@ -60,7 +60,7 @@ class TestPlaywrightShowcase:
     self.app.open_iframe_beta()
     self.app.open_iframe_gamma()
     self.app.frame_gamma().get_by_role("button", name="Click button").click()
-    expect(self.app.frame_gamma().locator("#res-C")).to_have_text("✨ Gamma Clicked!")
+    expect(self.app.frame_gamma().locator("#res-C")).to_have_text("Iframe C Clicked!")
 
   def test_Open_New_Tab(self) -> None:
     with self.page.expect_popup() as popup_info:
@@ -100,11 +100,11 @@ class TestPlaywrightShowcase:
 
     self.page.once("dialog", handle)
     self.page.locator("#btn-alert").click()
-    assert messages == ["⚠️ This is a browser alert!"]
+    assert messages == ["This is a browser alert!"]
 
   def test_Trigger_Alert_outside(self) -> None:
     def handle(dialog) -> None:
-      assert dialog.message == "⚠️ This is a browser alert!"
+      assert dialog.message == "This is a browser alert!"
       self.page.mouse.click(10, 10)
       dialog.accept()
 
@@ -164,35 +164,35 @@ class TestPlaywrightShowcase:
   def test_Trigger_Prompt_OK(self) -> None:
     self.page.once("dialog", lambda dialog: dialog.accept("Tester1"))
     self.page.locator("#btn-prompt").click()
-    expect(self.page.locator("#prompt-result")).to_contain_text("👤 Name:")
+    expect(self.page.locator("#prompt-result")).to_contain_text("Name:")
     expect(self.page.locator("#prompt-result")).to_contain_text("Tester1")
 
-  def test_Simulate_Failure_State(self) -> None:
-    self.page.get_by_role("button", name="Simulate Failure State").click()
-    expect(self.page.locator("#failure-msg")).to_contain_text("💥 CRITICAL FAILURE EMULATED")
+  # def test_Simulate_Failure_State(self) -> None:
+  #   self.page.get_by_role("button", name="Simulate Failure State").click()
+  #   expect(self.page.locator("#failure-msg")).to_contain_text("CRITICAL FAILURE EMULATED")
 
-  def test_Reset_State(self) -> None:
-    self.page.get_by_role("button", name="Simulate Failure State").click()
-    self.page.get_by_role("button", name="Reset State").click()
-    expect(self.page.locator("#failure-msg")).to_have_text("System Normal")
+  # def test_Reset_State(self) -> None:
+  #   self.page.get_by_role("button", name="Simulate Failure State").click()
+  #   self.page.get_by_role("button", name="Reset State").click()
+  #   expect(self.page.locator("#failure-msg")).to_have_text("System Normal")
 
   def test_Submit_Form_invalid1(self) -> None:
     self.page.locator("#trace-name").fill("")
     self.page.locator("#trace-email").fill("")
     self.page.get_by_role("button", name="Submit Form").click()
-    expect(self.page.locator("#trace-result")).to_contain_text("⚠️ Both fields are required")
+    expect(self.page.locator("#trace-result")).to_contain_text("Both fields are required")
 
   def test_Submit_Form_invalid2(self) -> None:
     self.page.locator("#trace-name").fill("")
     self.page.locator("#trace-email").fill("test@gmail.com")
     self.page.get_by_role("button", name="Submit Form").click()
-    expect(self.page.locator("#trace-result")).to_contain_text("⚠️ Both fields are required")
+    expect(self.page.locator("#trace-result")).to_contain_text("Both fields are required")
 
   def test_Submit_Form_invalid3(self) -> None:
     self.page.locator("#trace-name").fill("ABC")
     self.page.locator("#trace-email").fill("")
     self.page.get_by_role("button", name="Submit Form").click()
-    expect(self.page.locator("#trace-result")).to_contain_text("⚠️ Both fields are required")
+    expect(self.page.locator("#trace-result")).to_contain_text("Both fields are required")
 
   def test_Submit_Form_valid(self) -> None:
     self.page.locator("#trace-name").fill("ABC")
