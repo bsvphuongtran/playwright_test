@@ -25,15 +25,15 @@ class ShowcasePage(BasePage):
 
   def load_nested_frames(self) -> None:
     self.page.get_by_role("button", name="Load Nested Frames (A → B → C)").click()
-    expect(self.frame_alpha().get_by_text("Iframe Alpha")).to_be_visible()
+    expect(self.frame_alpha().get_by_text("Iframe A")).to_be_visible()
 
   def open_iframe_beta(self) -> None:
     self.frame_alpha().get_by_role("button", name="Open Iframe B").click()
-    expect(self.frame_beta().get_by_text("Iframe Beta")).to_be_visible()
+    expect(self.frame_beta().get_by_text("Iframe B")).to_be_visible()
 
   def open_iframe_gamma(self) -> None:
     self.frame_beta().get_by_role("button", name="Open Iframe C").click()
-    expect(self.frame_gamma().get_by_text("Iframe Gamma")).to_be_visible()
+    expect(self.frame_gamma().get_by_text("Iframe C")).to_be_visible()
 
   def open_modal(self) -> None:
     self.page.get_by_role("button", name="Open In-page Modal").click()
