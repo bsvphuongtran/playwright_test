@@ -8,10 +8,16 @@ from pages.showcase_page import ShowcasePage
 
 class TestPlaywrightShowcase:
   @pytest.fixture(autouse=True)
-  def setup(self, page: Page, app_url: str) -> None:
+  def setup(self, page: Page, app_url: str, request: pytest.FixtureRequest) -> None:
     self.page = page
     self.app = ShowcasePage(page, app_url)
     self.app.open()
+    test_name = request.node.name.split("[")[0].replace("test_", "")
+    if test_name in {"beforeEach", "afterEach"}:
+      self.app.hooks_login()
+    yield
+    if test_name == "afterEach":
+      self.app.hooks_delete_all_records()
 
   def test_Title(self) -> None:
     expect(
@@ -176,7 +182,6 @@ class TestPlaywrightShowcase:
   #   self.page.get_by_role("button", name="Reset State").click()
   #   expect(self.page.locator("#failure-msg")).to_have_text("System Normal")
 
-
   def test_Submit_Form_invalid1(self) -> None:
     self.page.locator("#trace-name").fill("")
     self.page.locator("#trace-email").fill("")
@@ -200,3 +205,69 @@ class TestPlaywrightShowcase:
     self.page.locator("#trace-email").fill("test@gmail.com")
     self.page.get_by_role("button", name="Submit Form").click()
     expect(self.page.locator("#trace-result")).to_contain_text("✓ Submitted: ABC")
+
+  def test_Full_Page_Screenshot(self) -> None:
+    self.app.click_normal_state()
+    self.app.expect_vr_full_normal()
+    self.page.screenshot(path="reports/screenshots/manual_full_page.png", full_page=False)
+
+  def test_Element_Screenshot_Pass(self) -> None:
+    self.app.click_normal_state()
+    self.app.expect_vr_full_normal()
+
+  def test_Element_Screenshot_Failed(self) -> None:
+    self.app.click_failure_state()
+    expect(self.page.locator("#vr-full-display")).to_have_text("System Normal")
+
+  def test_Element_Video(self) -> None:
+    self.app.play_sequence()
+    self.app.expect_sequence_complete()
+
+  def test_Element_Video_Pass(self) -> None:
+    self.app.play_sequence()
+    self.app.expect_sequence_complete(timeout=10_000)
+
+  def test_Element_Video_Failed(self) -> None:
+    self.app.play_sequence()
+    self.app.expect_sequence_complete(timeout=1_000)
+
+  def test_Tracing(self) -> None:
+    self.page.locator("#trace-name").fill("ABC")
+    self.page.locator("#trace-email").fill("test@gmail.com")
+    self.page.get_by_role("button", name="Submit Form").click()
+    expect(self.page.locator("#trace-result")).to_contain_text("✓ Submitted: ABC")
+
+  # def test_Tracing_Pass(self) -> None:
+  #   self.page.locator("#trace-name").fill("")
+  #   self.page.locator("#trace-email").fill("")
+  #   self.page.get_by_role("button", name="Submit Form").click()
+  #   expect(self.page.locator("#trace-result")).to_have_text("✓ Submitted: ABC")
+
+  def test_Tracing_Failed(self) -> None:
+    self.page.locator("#trace-name").fill("")
+    self.page.locator("#trace-email").fill("")
+    self.page.get_by_role("button", name="Submit Form").click()
+    expect(self.page.locator("#trace-result")).to_have_text("✓ Submitted: ABC")
+
+  def test_beforeAll(self) -> None:
+    from pathlib import Path
+
+    reports = Path(__file__).parent.parent / "reports"
+    assert (reports / "screenshots").exists()
+    assert (reports / "videos").exists()
+    assert reports.exists()
+
+  def test_afterAll(self) -> None:
+    self.app.hooks_login()
+    self.app.hooks_logout()
+    expect(self.page.locator("#hk-logout-msg")).to_contain_text("afterAll")
+
+  def test_beforeEach(self) -> None:
+    expect(self.page.locator("#hk-main-section")).to_be_visible()
+    expect(self.page.locator("#hk-logged-user")).to_have_text("admin")
+    self.app.hooks_create_record("Hook record", "bug")
+    expect(self.page.locator("tr[data-record-id]")).to_have_count(1)
+
+  def test_afterEach(self) -> None:
+    self.app.hooks_create_record("Record for cleanup", "task")
+    expect(self.page.locator("tr[data-record-id]")).to_have_count(1)

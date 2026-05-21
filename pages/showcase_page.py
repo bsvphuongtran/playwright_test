@@ -41,3 +41,46 @@ class ShowcasePage(BasePage):
 
   def expect_modal_closed(self) -> None:
     expect(self.page.locator("#modal-overlay.active")).not_to_be_visible()
+
+  def click_normal_state(self) -> None:
+    self.page.locator("#btn-reset-state").click()
+
+  def click_failure_state(self) -> None:
+    self.page.locator("#btn-trigger-failure").click()
+
+  def expect_vr_full_normal(self) -> None:
+    expect(self.page.locator("#vr-full-display")).to_contain_text("System Normal")
+
+  def expect_vr_full_failure(self) -> None:
+    expect(self.page.locator("#vr-full-display")).to_contain_text("CRITICAL FAILURE EMULATED")
+
+  def play_sequence(self) -> None:
+    self.page.locator("#btn-play-seq").click()
+
+  def expect_sequence_complete(self, timeout: int = 10_000) -> None:
+    expect(self.page.locator("#vr-action-txt")).to_have_text(
+      "✓ Sequence complete!", timeout=timeout
+    )
+
+  def hooks_login(self, username: str = "admin", password: str = "password123") -> None:
+    self.page.locator("#section-hooks").scroll_into_view_if_needed()
+    self.page.locator("#hk-username").fill(username)
+    self.page.locator("#hk-password").fill(password)
+    self.page.locator("#hk-btn-login").click()
+    expect(self.page.locator("#hk-main-section")).to_be_visible()
+
+  def hooks_logout(self) -> None:
+    self.page.locator("#hk-btn-logout").click()
+    expect(self.page.locator("#hk-login-section")).to_be_visible()
+
+  def hooks_create_record(self, name: str, category: str = "bug") -> None:
+    self.page.locator("#hk-record-name").fill(name)
+    self.page.locator("#hk-record-category").select_option(category)
+    self.page.locator("#hk-btn-create").click()
+    expect(self.page.locator("tr[data-record-id]")).to_have_count(1, timeout=5000)
+
+  def hooks_delete_all_records(self) -> None:
+    delete_buttons = self.page.locator("[id^='hk-btn-delete-']")
+    while delete_buttons.count() > 0:
+      delete_buttons.first.click()
+    expect(self.page.locator("tr[data-record-id]")).to_have_count(0)
