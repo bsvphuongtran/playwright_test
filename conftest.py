@@ -8,7 +8,6 @@ Responsibilities:
   (both use {TestName}_{yyyymmddHHMMSS}); attach them to the pytest-html report.
 - On pass/skip: discard the recorded video so only failed runs leave artifacts.
 """
-
 import os
 import re
 import shutil
