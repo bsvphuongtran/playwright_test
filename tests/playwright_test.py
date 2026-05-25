@@ -209,7 +209,7 @@ class TestPlaywrightShowcase:
   def test_Full_Page_Screenshot(self) -> None:
     self.app.click_normal_state()
     self.app.expect_vr_full_normal()
-    self.page.screenshot(path="reports/screenshots/manual_full_page.png", full_page=False)
+    #self.page.screenshot(path="reports/screenshots/manual_full_page.png", full_page=False)
 
   def test_Element_Screenshot_Pass(self) -> None:
     self.app.click_normal_state()
@@ -218,6 +218,7 @@ class TestPlaywrightShowcase:
   def test_Element_Screenshot_Failed(self) -> None:
     self.app.click_failure_state()
     expect(self.page.locator("#vr-full-display")).to_have_text("System Normal")
+    #self.app.screenshot_element("#vr-full-display", "reports/screenshots/screenshot_failed_page.png")
 
   def test_Element_Video(self) -> None:
     self.app.play_sequence()
@@ -232,42 +233,56 @@ class TestPlaywrightShowcase:
     self.app.expect_sequence_complete(timeout=1_000)
 
   def test_Tracing(self) -> None:
-    self.page.locator("#trace-name").fill("ABC")
-    self.page.locator("#trace-email").fill("test@gmail.com")
-    self.page.get_by_role("button", name="Submit Form").click()
+    self.app.submit_trace_form("ABC", "test@gmail.com")
     expect(self.page.locator("#trace-result")).to_contain_text("✓ Submitted: ABC")
 
-  # def test_Tracing_Pass(self) -> None:
-  #   self.page.locator("#trace-name").fill("")
-  #   self.page.locator("#trace-email").fill("")
-  #   self.page.get_by_role("button", name="Submit Form").click()
-  #   expect(self.page.locator("#trace-result")).to_have_text("✓ Submitted: ABC")
+  def test_Tracing_Failed_OK(self) -> None:
+    self.app.submit_trace_form("", "")
+    expect(self.page.locator("#trace-result")).to_contain_text("Both fields are required")
 
-  def test_Tracing_Failed(self) -> None:
-    self.page.locator("#trace-name").fill("")
-    self.page.locator("#trace-email").fill("")
-    self.page.get_by_role("button", name="Submit Form").click()
+  def test_Tracing_Failed_NG(self) -> None:
+    self.app.submit_trace_form("", "")
     expect(self.page.locator("#trace-result")).to_have_text("✓ Submitted: ABC")
 
   def test_beforeAll(self) -> None:
+
     from pathlib import Path
 
     reports = Path(__file__).parent.parent / "reports"
+    assert reports.exists()
     assert (reports / "screenshots").exists()
     assert (reports / "videos").exists()
-    assert reports.exists()
+    assert (reports / "traces").exists()
+    print("[beforeAll] Setup môi trường test. Artifacts sẽ được lưu tại bảng Records")
 
   def test_afterAll(self) -> None:
     self.app.hooks_login()
+    record_cases = [
+      ("Name1", "bug", "Bug"),
+      ("Name2", "feature", "Feature"),
+      ("Name3", "task", "Task"),
+      ("Name3", "chore", "Chore"),
+    ]
+    for name, category, category_label in record_cases:
+      self.app.hooks_create_record_and_verify(name, category, category_label)
     self.app.hooks_logout()
     expect(self.page.locator("#hk-logout-msg")).to_contain_text("afterAll")
+    print("[afterAll] Kết thúc test session – dọn dẹp môi trường")
 
   def test_beforeEach(self) -> None:
+
     expect(self.page.locator("#hk-main-section")).to_be_visible()
     expect(self.page.locator("#hk-logged-user")).to_have_text("admin")
     self.app.hooks_create_record("Hook record", "bug")
     expect(self.page.locator("tr[data-record-id]")).to_have_count(1)
 
   def test_afterEach(self) -> None:
-    self.app.hooks_create_record("Record for cleanup", "task")
+    expect(self.page.locator("#hk-main-section")).to_be_visible()
+    expect(self.page.locator("#hk-logged-user")).to_have_text("admin")
+    self.app.hooks_create_record("Hook record", "bug")
     expect(self.page.locator("tr[data-record-id]")).to_have_count(1)
+
+    delete_buttons = self.page.locator("[id^='hk-btn-delete-']")
+    while delete_buttons.count() > 0:
+      delete_buttons.first.click()
+    expect(self.page.locator("tr[data-record-id]")).to_have_count(0)

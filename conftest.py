@@ -11,6 +11,8 @@ Media rules:
 import os
 import re
 import shutil
+import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -81,8 +83,8 @@ TEST_FOCUS_SELECTORS: dict[str, str] = {
   "Element_Video_Pass": "#section-screenshot",
   "Element_Video_Failed": "#section-screenshot",
   "Tracing": "#section-tracing",
-  # "Tracing_Pass": "#section-tracing",
-  "Tracing_Failed": "#section-tracing",
+  "Tracing_Failed_OK": "#section-tracing",
+  "Tracing_Failed_NG": "#section-tracing",
   "beforeAll": ".container",
   "afterAll": "#section-hooks",
   "beforeEach": "#section-hooks",
@@ -91,7 +93,6 @@ TEST_FOCUS_SELECTORS: dict[str, str] = {
 
 TRACE_MODES: dict[str, str] = {
   "Tracing": "always",
-  "Tracing_Pass": "fail_only",
   "Tracing_Failed": "fail_only",
 }
 
@@ -111,7 +112,9 @@ def pytest_sessionstart(session: pytest.Session) -> None:
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
-  print(f"\n[afterAll] Test session ended. Exit status: {exitstatus}")
+  if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+  print("\n[afterAll] Kết thúc test session – dọn dẹp môi trường")
   _cleanup_orphan_videos()
 
 
@@ -233,6 +236,27 @@ def _capture_focused_screenshot(
   return screenshot_path if screenshot_path.exists() else None
 
 
+def _wait_for_video_file(path: Path, timeout: float = 10.0) -> bool:
+  """Wait until Playwright finishes writing a non-empty WebM file."""
+  deadline = time.monotonic() + timeout
+  last_size = -1
+  stable_checks = 0
+
+  while time.monotonic() < deadline:
+    if path.exists():
+      size = path.stat().st_size
+      if size > 0 and size == last_size:
+        stable_checks += 1
+        if stable_checks >= 2:
+          return True
+      else:
+        stable_checks = 0
+        last_size = size
+    time.sleep(0.2)
+
+  return path.exists() and path.stat().st_size > 0
+
+
 def _delete_recorded_videos(context: BrowserContext) -> None:
   for page in list(context.pages):
     try:
@@ -240,18 +264,23 @@ def _delete_recorded_videos(context: BrowserContext) -> None:
         continue
       if not page.is_closed():
         page.close()
-      video_path = page.video.path()
-      if video_path and Path(video_path).exists():
-        Path(video_path).unlink()
+      video_path = Path(page.video.path())
+      if _wait_for_video_file(video_path):
+        video_path.unlink()
     except Exception:
       pass
 
 
 def _cleanup_orphan_videos() -> None:
-  """Remove Playwright default page@*.webm files that were not renamed."""
+  """Remove Playwright raw video files that were not renamed."""
   if not VIDEOS_DIR.exists():
     return
-  for path in VIDEOS_DIR.glob("page@*.webm"):
+  for path in VIDEOS_DIR.glob("*.webm"):
+    is_raw_video = path.name.startswith("page@") or re.fullmatch(
+      r"[0-9a-f]{32}\.webm", path.name
+    )
+    if not is_raw_video:
+      continue
     try:
       path.unlink()
     except Exception:
@@ -268,8 +297,8 @@ def _should_keep_video(test_name: str, failed: bool, passed: bool) -> bool:
 
 def _save_context_video(context: BrowserContext, item: pytest.Item, timestamp: str) -> Path | None:
   """
-  Save video after the page fixture has closed the page (context teardown).
-  Uses video.save_as() so the WebM is fully finalized and playable.
+  Close the page first so Playwright finalizes the WebM, then move the raw
+  recording to its test artifact name.
   """
   video_dest = VIDEOS_DIR / _artifact_filename(item.name, ".webm", timestamp)
 
@@ -277,22 +306,19 @@ def _save_context_video(context: BrowserContext, item: pytest.Item, timestamp: s
     if page.video is None:
       continue
     try:
-      page.video.save_as(str(video_dest))
-      _cleanup_orphan_videos()
-      if video_dest.exists() and video_dest.stat().st_size > 0:
+      if not page.is_closed():
+        page.close()
+      source = Path(page.video.path())
+      if not _wait_for_video_file(source):
+        continue
+      if video_dest.exists():
+        video_dest.unlink()
+      shutil.move(str(source), str(video_dest))
+      if _wait_for_video_file(video_dest):
+        _cleanup_orphan_videos()
         return video_dest
     except Exception:
-      try:
-        if not page.is_closed():
-          page.close()
-        source = page.video.path()
-        if source and Path(source).exists():
-          shutil.copy2(source, video_dest)
-          _cleanup_orphan_videos()
-          if video_dest.exists() and video_dest.stat().st_size > 0:
-            return video_dest
-      except Exception:
-        pass
+      pass
   return None
 
 

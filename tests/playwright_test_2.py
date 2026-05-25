@@ -211,3 +211,175 @@ def test_Submit_Form_valid(page: Page) -> None:
     expect(page.locator("#trace-result")).to_contain_text("✓ Submitted: ABC")
 
 
+def test_Full_Page_Screenshot(page: Page) -> None:
+    page.locator("#btn-reset-state").click()
+    expect(page.locator("#vr-full-display")).to_contain_text("System Normal")
+    #page.screenshot(path="reports/screenshots/manual_full_page.png", full_page=False)
+
+def test_Element_Screenshot_Pass(page: Page) -> None:
+    page.locator("#btn-reset-state").click()
+    expect(page.locator("#vr-full-display")).to_contain_text("System Normal")
+
+def test_Element_Screenshot_Failed(page: Page) -> None:
+    page.locator("#btn-trigger-failure").click()
+    expect(page.locator("#vr-full-display")).to_contain_text("System Normal")
+    #page.screenshot_element("#vr-full-display", "reports/screenshots/screenshot_failed_page.png")
+
+
+def test_Element_Video(page: Page , timeout: int = 10_000) -> None:
+    page.locator("#btn-play-seq").click()
+    expect(page.locator("#vr-action-txt")).to_have_text(
+      "✓ Sequence complete!", timeout=timeout
+    )
+
+
+def test_Element_Video_Pass(page: Page , timeout: int = 10_000) -> None:
+    page.locator("#btn-play-seq").click()
+    expect(page.locator("#vr-action-txt")).to_have_text(
+      "✓ Sequence complete!", timeout=10_000
+    )
+
+def test_Element_Video_Failed(page: Page , timeout: int = 10_000) -> None:
+    page.locator("#btn-play-seq").click()
+    page.locator("#btn-play-seq").click()
+    expect(page.locator("#vr-action-txt")).to_have_text(
+      "✓ Sequence complete!", timeout=1_000
+    )
+
+
+def test_Tracing(page: Page) -> None:
+    page.locator("#trace-name").fill("ABC")
+    page.locator("#trace-email").fill("test@gmail.com")
+    page.get_by_role("button", name="Submit Form").click()
+    expect(page.locator("#trace-result")).to_contain_text("✓ Submitted: ABC")
+
+def test_Tracing_Failed_OK(page: Page) -> None:
+    page.locator("#trace-name").fill("")
+    page.locator("#trace-email").fill("")
+    page.get_by_role("button", name="Submit Form").click()
+    expect(page.locator("#trace-result")).to_contain_text("Both fields are required")
+
+def test_Tracing_Failed_NG(page: Page) -> None:
+    page.locator("#trace-name").fill("")
+    page.locator("#trace-email").fill("")
+    page.get_by_role("button", name="Submit Form").click()
+    expect(page.locator("#trace-result")).to_have_text("✓ Submitted: ABC")
+
+def test_beforeAll(page: Page) -> None:
+    from pathlib import Path
+
+    reports = Path(__file__).parent.parent / "reports"
+    assert reports.exists()
+    assert (reports / "screenshots").exists()
+    assert (reports / "videos").exists()
+    assert (reports / "traces").exists()
+    print("[beforeAll] Setup môi trường test. Artifacts sẽ được lưu tại bảng Records")
+
+
+# def hooks_create_record_and_verify(
+#     page: Page, name: str, category: str, category_label: str
+#   ) -> None:
+#     """Create record; verify #hk-create-msg and row in .hk-sub table."""
+#     page.locator("#hk-record-name").fill(name)
+#     page.locator("#hk-record-category").select_option(category)
+#     page.locator("#hk-btn-create").click()
+
+#     create_msg = page.locator("#hk-create-msg")
+#     expect(create_msg).to_contain_text(f'"{name}" created at')
+#     expect(create_msg).to_contain_text("(beforeEach done).")
+
+#     records_table = page.locator(".hk-sub").filter(
+#       has=page.locator("tr[data-record-id]")
+#     )
+#     row = records_table.locator("tr[data-record-id]").filter(
+#       has=page.locator(".rec-name", has_text=name)
+#     ).filter(has=page.locator(".cat-pill", has_text=category_label)).last
+#     expect(row.locator(".rec-name")).to_have_text(name)
+#     expect(row.locator(".cat-pill")).to_have_text(category_label)
+
+
+def test_afterAll(
+        page: Page, username: str = "admin", password: str = "password123",
+        ) -> None:
+    page.locator("#section-hooks").scroll_into_view_if_needed()
+    page.locator("#hk-username").fill(username)
+    page.locator("#hk-password").fill(password)
+    page.locator("#hk-btn-login").click()
+    expect(page.locator("#hk-main-section")).to_be_visible()
+
+    record_cases = [
+      ("Name1", "bug", "Bug"),
+      ("Name2", "feature", "Feature"),
+      ("Name3", "task", "Task"),
+      ("Name3", "chore", "Chore"),
+    ]
+    for name, category, category_label in record_cases:
+      def hooks_create_record_and_verify(
+        name: str, category: str, category_label: str
+     ) -> None:
+        """Create record; verify #hk-create-msg and row in .hk-sub table."""
+        page.locator("#hk-record-name").fill(name)
+        page.locator("#hk-record-category").select_option(category)
+        page.locator("#hk-btn-create").click()
+
+        create_msg = page.locator("#hk-create-msg")
+        expect(create_msg).to_contain_text(f'"{name}" created at')
+        expect(create_msg).to_contain_text("(beforeEach done).")
+
+        records_table = page.locator(".hk-sub").filter(
+         has=page.locator("tr[data-record-id]")
+        )
+        row = records_table.locator("tr[data-record-id]").filter(
+        has=page.locator(".rec-name", has_text=name)
+        ).filter(has=page.locator(".cat-pill", has_text=category_label)).last
+        expect(row.locator(".rec-name")).to_have_text(name)
+        expect(row.locator(".cat-pill")).to_have_text(category_label)
+            
+    hooks_create_record_and_verify(name, category, category_label)
+    page.locator("#hk-btn-logout").click()
+    expect(page.locator("#hk-login-section")).to_be_visible()
+    expect(page.locator("#hk-logout-msg")).to_contain_text("afterAll")
+    print("[afterAll] Kết thúc test session – dọn dẹp môi trường")
+
+
+
+def test_beforeEach(page: Page, username: str = "admin", password: str = "password123") -> None:
+    page.locator("#section-hooks").scroll_into_view_if_needed()
+    page.locator("#hk-username").fill(username)
+    page.locator("#hk-password").fill(password)
+    page.locator("#hk-btn-login").click()
+    expect( page.locator("#hk-main-section")).to_be_visible()
+    expect( page.locator("#hk-logged-user")).to_have_text("admin")
+
+    def hooks_create_record(name: str, category: str = "bug") -> None:
+        page.locator("#hk-record-name").fill(name)
+        page.locator("#hk-record-category").select_option(category)
+        page.locator("#hk-btn-create").click()
+        expect(page.locator("tr[data-record-id]")).to_have_count(1, timeout=5000)
+
+    hooks_create_record("Hook record", "bug")
+    expect(page.locator("tr[data-record-id]")).to_have_count(1)
+
+
+
+def test_afterEach(page: Page, username: str = "admin", password: str = "password123") -> None:
+    page.locator("#section-hooks").scroll_into_view_if_needed()
+    page.locator("#hk-username").fill(username)
+    page.locator("#hk-password").fill(password)
+    page.locator("#hk-btn-login").click()
+    expect( page.locator("#hk-main-section")).to_be_visible()
+    expect( page.locator("#hk-logged-user")).to_have_text("admin")
+
+    def hooks_create_record(name: str, category: str = "bug") -> None:
+        page.locator("#hk-record-name").fill(name)
+        page.locator("#hk-record-category").select_option(category)
+        page.locator("#hk-btn-create").click()
+        expect(page.locator("tr[data-record-id]")).to_have_count(1, timeout=5000)
+
+    hooks_create_record("Hook record", "bug")
+    expect(page.locator("tr[data-record-id]")).to_have_count(1)
+
+    delete_buttons = page.locator("[id^='hk-btn-delete-']")
+    while delete_buttons.count() > 0:
+      delete_buttons.first.click()
+    expect(page.locator("tr[data-record-id]")).to_have_count(0)

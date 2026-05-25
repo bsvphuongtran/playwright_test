@@ -62,6 +62,12 @@ class ShowcasePage(BasePage):
       "✓ Sequence complete!", timeout=timeout
     )
 
+  def submit_trace_form(self, name: str, email: str) -> None:
+    self.page.locator("#section-tracing").scroll_into_view_if_needed()
+    self.page.locator("#trace-name").fill(name)
+    self.page.locator("#trace-email").fill(email)
+    self.page.get_by_role("button", name="Submit Form").click()
+
   def hooks_login(self, username: str = "admin", password: str = "password123") -> None:
     self.page.locator("#section-hooks").scroll_into_view_if_needed()
     self.page.locator("#hk-username").fill(username)
@@ -78,6 +84,27 @@ class ShowcasePage(BasePage):
     self.page.locator("#hk-record-category").select_option(category)
     self.page.locator("#hk-btn-create").click()
     expect(self.page.locator("tr[data-record-id]")).to_have_count(1, timeout=5000)
+
+  def hooks_create_record_and_verify(
+    self, name: str, category: str, category_label: str
+  ) -> None:
+    """Create record; verify #hk-create-msg and row in .hk-sub table."""
+    self.page.locator("#hk-record-name").fill(name)
+    self.page.locator("#hk-record-category").select_option(category)
+    self.page.locator("#hk-btn-create").click()
+
+    create_msg = self.page.locator("#hk-create-msg")
+    expect(create_msg).to_contain_text(f'"{name}" created at')
+    expect(create_msg).to_contain_text("(beforeEach done).")
+
+    records_table = self.page.locator(".hk-sub").filter(
+      has=self.page.locator("tr[data-record-id]")
+    )
+    row = records_table.locator("tr[data-record-id]").filter(
+      has=self.page.locator(".rec-name", has_text=name)
+    ).filter(has=self.page.locator(".cat-pill", has_text=category_label)).last
+    expect(row.locator(".rec-name")).to_have_text(name)
+    expect(row.locator(".cat-pill")).to_have_text(category_label)
 
   def hooks_delete_all_records(self) -> None:
     delete_buttons = self.page.locator("[id^='hk-btn-delete-']")
